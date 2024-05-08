@@ -1,0 +1,115 @@
+Part 1
+1.	Generate a dataset of 300 random numbers distributed normally with a mean of 200 and a standard deviation of 10. Use appropriate R function(s) to validate that the mean is approximately 200 and that the standard deviation is approximately 10 for the distribution.
+
+set.seed(123)
+data_norm <- rnorm(300,200,10)
+mean(data_norm)
+sd(data_norm)
+
+2.	Create a histogram depicting the data distribution for the 300 random numbers generated in step 1. (Hint: use argument freq=FALSE when you write the code for your histogram to plot the density of the distribution rather than the frequency. 
+This helps when you get to Step 3.)
+
+hist(data_norm, freq = FALSE, 
+main = "Normal Distribution Histogram", xlab = "Value")
+
+3.	Use the appropriate R function to superimpose a normal curve over the frequency distribution. 
+(Hint: You will need the dnorm function for this step. You can get help by writing ?dnorm in your R console.)
+
+curve(dnorm(x, mean = mean(data_norm), sd = sd(data_norm)), add = TRUE, col = "blue")
+
+4.	Generate a dataset of 300 random numbers distributed exponentially with a rate parameter of 0.5. Use appropriate R function(s) to validate that the rate parameter for the distribution is approximately 0.5 
+(Hint: the rate parameter is calculated by 1/mean).
+
+data_exp <- rexp(300, rate = 0.5)
+1/mean(data_exp)
+
+5.	Create a histogram depicting the data distribution for the 300 random numbers generated in step 4.
+
+hist(data_exp, main = "Exponential Distribution Histogram", xlab = "Value")
+
+6.	Summarize the results of steps 2 through 4. Are these results what you expected? Why or why not?
+
+We created a histogram to show the distribution of the data. We then created a line to show the slope of the data. This shows us that the data is normally distributed. 
+These are the results that were to be expected based on how we wrote the R function to create the randomly generated numbers to be normally distributed. 
+
+Part 2
+1.	Assume that you have a dataset that follows a normal distribution. The dataset contains sales revenue for the previous month. The mean sales revenue is $10,068 and the standard deviation is $214. Use the mean and standard deviation information from this dataset and the appropriate R function(s) to complete the steps below and make predictions about the same month's revenue behavior in the next year.
+2.	Calculate the probability that sales revenue will be less than $10,000 in the same month next year.
+
+pnorm(10000, mean = 10068, sd = 214)
+
+3.	Calculate the probability that sales revenue will be more than $10,398 in the same month next year.
+
+1 - pnorm(10398, mean = 10068, sd = 214)
+
+4.	Calculate the probability that sales revenue will be between $9,984 and $10,116 in the same month next year.
+
+pnorm(10116, mean = 10068, sd = 214) - pnorm(9984, mean = 10068, sd = 214)
+
+5.	Complete the following statement: There will be a 95% chance that a randomly selected value from this dataset will fall between _______ and _______.  
+Verify your answers similar to Q3 above.
+
+qnorm(0.025, mean = 10068, sd = 214)
+qnorm(0.975, mean = 10068, sd = 214)
+
+1 - pnorm(9648.568, mean = 10068, sd = 214)
+1 - pnorm(10487.43, mean = 10068, sd = 214)
+
+Part 3
+1.	Load the “reshape2” package into your R environment. Conduct a t-test to assess whether the average tip is equal to $2.50. 
+Include your R output as part of your answer and use the output to explain whether or not the average tip is equal to $2.50.
+
+library(plyr)
+library(ggplot2)
+data(tips, package = "reshape2")
+tip = tips$tip
+   
+average_tip = mean(tip)
+
+t.test(tip, mu = 2.50, alternative = "two.sided")
+
+The hypothesis test tells us that the average tip is not equal to 2.50 as we see the mean equals 2.998279.
+
+2.	Conduct a t-test to assess whether the average tip is greater than $2.50. Include your R output as part of your answer and use the output to explain whether the average tip is greater than $2.50. 
+What is the difference between the t-test conducted in step 1 and step 2?
+
+t.test(tip, mu = 2.50, alternative = "greater")
+
+The hypothesis test tells us that the mean is greater than 2.50 as it sits at 2.998279.
+
+3.	Conduct a t-test to assess whether males and female diners tip the same, on average. Include your R output as part of your answer and use the output to explain whether there is a significant difference in the tips left by male and female diners.
+
+sex = tips$sex
+t.test(tip ~ sex, data = tips, var.equal = TRUE)
+
+The p-value is not significant which tells us that female and male diners tip approximately equal.
+
+4.	Conduct an ANOVA test to assess whether diners tip the same on every day of the week. (Note that the “tips” dataset only includes data for Thursday – Sunday). 
+If there is a difference between days, on which day do diners leave the largest tips? 
+Include your R output as part of your answer and use the output to explain whether there is a significant difference in the average tip based on the day of the week.
+
+day = tips$day
+anova_test <- aov(tip ~ day-1, tips)
+summary(anova_test)
+
+This tells us that there is a difference in tips between days throughout the week.
+
+max_tip = max(tip)
+max_tip_index = which(tip==max_tip)
+day_max_tip = day[c(max_tip_index)]
+summary(day_max_tip)
+
+This output shows us that on Saturdays diners leave the largest tips.
+
+tips_days <- ddply(tips, "day", plyr::summarize, tip.mean = mean(tip),
+    tip.sd = sd(tip), length = NROW(tip), tfrac = qt(p = .90, df = length-1),
+    lower = tip.mean - tfrac*tip.sd/sqrt(length), upper = tip.mean + tfrac*tip.sd/sqrt(length))
+
+ggplot(tips_days, aes(x = tip.mean, y = day)) 
+  + geom_point() + geom_errorbarh(aes(xmin = lower, xmax = upper), height = .3) 
+	+  ggtitle('Days and Tips') 
+	+ xlab('Mean') 
+	+ ylab('Days')
+
+As we can see from the above output, Saturdays and Sundays have the highest average tips than Thursday and Fridays throughout the week. 
+Sunday also shows to be the highest average tip day between all days of the week in this dataset. 
