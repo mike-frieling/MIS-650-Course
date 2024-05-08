@@ -1,0 +1,56 @@
+Question 1: Load the “ggplot2” library into your R environment. Load the “diamonds” dataset into a new object called “ddat” for purposes of working through this assignment. 
+Use the appropriate R functions to check that the data has loaded correctly (The dimensions of the dataset should be 53,940 observations of 10 variables). 
+Use the View function to view the data in your R console and include a screenshot to show that the data loaded appropriately.
+
+library(ggplot2)
+data("diamonds")
+ddat <- diamonds
+dim(ddat)
+View(ddat)
+
+Question 2: Use the sapply function to find the mean of each column in the ddat dataset. Why does R give you a warning message when you execute this function?
+
+sapply(ddat, mean, na.rm = TRUE)
+
+R gives us a warning message for cut, color, and clarity due to not being able to complete the mean for string variables. When running the mean function it requires numeric or logical to calculate. 
+
+Question 3: Using the aggregate function, find the median carat size for each cut of diamond. Use the same function to find the median sales price for each cut of diamond. 
+Do Ideal cut diamonds generally have higher or lower median carat weight than Fair cut diamonds? Which cut of diamond has the highest median sales price?
+
+aggregate(carat ~ cut, ddat, median)
+aggregate(price ~ cut, ddat, median)
+
+Ideal cut diamonds have a lower median carat weight than Fair cut diamonds. The Fair cut diamonds also have the highest median sales price than the other cuts of diamonds. 
+
+Question 4: Occasionally when manipulating data, an analyst will want to group by more than 1 variable. Use the aggregate function to find the median carat size by the cut and the color of the diamond. 
+Which color diamond has a median carat weight of 1.0 or more for all cuts?
+
+aggregate(carat ~ cut + color, ddat, median)
+
+The color J has a median carat weight of 1.0 or more for all cuts. 
+
+Question 5: Load the “dplyr” library into your R environment. Use the filter function to create a new object called “fcdat” that only includes fair cut diamonds from the ddat dataset. 
+Check to ensure that your filtering worked appropriately by checking the dimensions of the “fcdat” dataset. (The dimensions of the fcdat dataset should be 1,610 observations of 10 variables). 
+Use the View function to view the “fcdat” data in your R console and include a screenshot to show that the data loaded appropriately.
+
+library(dplyr)
+fcdat <- filter(ddat, cut == "Fair")
+dim(fcdat)
+View(fcdat)
+
+Question 6: While the “dplyr” library makes data manipulation easier, R base functionality can generally achieve the same tasks with different code. 
+Use R base functions (i.e., those in the base environment, not in a particular library) to create a new object called “icdat” that only includes ideal cut diamonds from the ddat dataset. 
+Check to ensure that your filtering worked appropriately by checking the dimensions of the icdat dataset. (The dimensions of the icdat dataset should be 21,151 observations of 10 variables). 
+Use the View function to view the “icdat” data in your R console and include a screenshot to show that the data loaded appropriately.
+
+icdat <- ddat[ddat$cut == "Ideal", ]
+dim(icdat)
+View(icdat)
+
+Question 7: Use the mutate function in dplyr to calculate “Price per carat,” which is the price of the diamond divided by the carat weight. 
+Use R base functionality to create this field as a new variable in the dataset called PPC. (Hint: you can use mathematical operations on vectors and 
+store the results in an object within a dataset using the $ operator, such as ddat$PPC). Use the summary function to show the minimum, median, mean, and maximum values for this new variable.
+
+ddat <- mutate(ddat, PPC = price / carat)
+ddat$PPC <- ddat$price / ddat$carat
+summary(ddat$PPC)
