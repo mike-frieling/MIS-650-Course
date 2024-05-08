@@ -1,0 +1,123 @@
+Part 1
+1.	Compute the sum of 100, 200, 300, and 400.
+
+100 + 200 + 300 + 400
+
+2.	Compute the average of all even numbers from 2-100.
+
+mean(seq(from=2,to=100,by=2))
+
+3.	Obtain the average for the square root of all multiples for even numbers from 2-100. Compute the square root of all even numbers from 2-100, and then average them.
+
+sqrt(seq(from=2,to=100,by=2))
+mean(sqrt(seq(from=2,to=100,by=2)))
+
+4.	Create a series of four vector objects called WeeklyTemps*. Note that the * will be a 1, 2, 3, or 4. Store the temperatures for the past 4 weeks (i.e., 7 days, Monday-Sunday) in each object. 
+You can reference weather resources for your area, or you can create the temperature data on your own.
+
+WeeklyTemps1 <- c(92,94,88,96,89)
+WeeklyTemps2 <- c(93,95,89,99,87)
+WeeklyTemps3 <- c(101,91,89,94,86)
+WeeklyTemps4 <- c(103,100,96,99,97)
+
+5.	Combine the four vectors created in step 4 into a dataset called MonthlyTemperatures.
+
+MonthlyTemperatures <- data.frame(WeeklyTemps1,WeeklyTemps2,WeeklyTemps3,WeeklyTemps4)
+print(MonthlyTemperatures)
+
+6.	Use the write()function to export the MonthlyTemperatures dataset into a .csv file called MonthlyTemperatures.
+
+write.csv(MonthlyTemperatures, "./MonthlyTemperatures.csv")
+
+Part 2
+1.	Load the Loblolly data into your R environment by storing it into an object called “lob.” Use the appropriate function to check the dimensions of the data frame (i.e., number of rows and columns). 
+
+lob <- Loblolly
+dim(lob)
+
+2.	Use the appropriate functions to calculate the following values for each variable in the lob dataset.
+
+First, we need to convert the Seed variable from integer to numeric or double to match the other variables height and age to run all statistical functions otherwise we get error when trying to run these functions with the Seed variable:
+lob$Seed <- as.double(as.integer(lob$Seed))
+
+  a)	Maximum value
+max(lob$height)
+max(lob$age)
+max(lob$Seed)
+
+  b)	Minimum value
+min(lob$height)
+min(lob$age)
+min(lob$Seed)
+
+  c)	Length
+length(lob$height)
+length(lob$age)
+length(lob$Seed)
+
+  d)	Mean
+mean(lob$height)
+mean(lob$age)
+mean(lob$Seed)
+
+  e)	Median
+median(lob$height)
+median(lob$age)
+median(lob$Seed)
+
+  f)	Standard deviation
+sd(lob$height)
+sd(lob$age)
+sd(lob$Seed)
+
+  g)	Variance
+var(lob$height)
+var(lob$age)
+var(lob$Seed)
+
+  h)	75th % quartile
+quantile(lob$height, .75)
+quantile(lob$age, .75)
+quantile(lob$Seed, .75)
+
+3.	Use the summary function on the data frame as well as on the height variable within the data frame. 
+Describe the information that each summary provides as well as why you get different results when you apply the summary function to a data frame versus a variable within a data frame.
+
+The summary for the data frame and the height variable all match however the difference between the two is that the summary for the data frame gives us a summary for all the variables within it versus the summary for the height variable which just gives us statistical summary of just that variable.
+
+summary(lob)
+summary(lob$height)
+
+4.	Use the appropriate functions to determine whether there is a significant correlation between a Loblolly pine tree’s age and its height. 
+Store the results of your correlation in an object called “age.height.cor.” Which correlational method is being used (e.g., Pearson, Spearman, Kendall) by the default correlation?
+The summary for the data frame and the height variable all match however the difference between the two is that the summary for the data frame gives us a summary for all the variables within it versus the summary for the height variable which just gives us statistical summary of just that variable.
+
+Pearson correlation is used by default. 
+
+cor(lob$height, lob$age)
+   
+age.height.cor <- cor(lob$height, lob$age)
+age.height.cor
+
+5.	Revise your code to specify that you want to run a Spearman correlation. Are your results the same or different than the default correlation? If so, how are they different?
+
+The result is different between Pearson correlation and Spearman Correlation. 
+Pearson correlation evaluates linear relationships between two variables while Spearman correlation evaluates monotonic relationships, ranked values, between two variables.
+
+cor(lob$height, lob$age, method = "spearman")
+
+6.	Use the hist and qqnorm functions to create a histogram and qq-plot for the height variable. Also run a Shapiro-Wilk test for normality. Is the data normally distributed? How can you tell? 
+How do you interpret the results of the qq-plot and the Shapiro-Wilk test? How does the longitudinal structure of the data impact its distribution?
+
+hist(lob$height)
+qqnorm(lob$height)
+
+Add qqline to see if points lie on line:
+qqline(lob$height)
+
+Shapiro-Wilk normality test:
+shapiro.test(lob$height)
+
+The histogram would show a bell curve if normally distributed and it does not. For the qqplot the points would lie on the qqline however they also do not. 
+This tells us that the data is not normally distributed. The Shapiro-Wilk test also shows, via the p-value, that the data is not normally distributed. 
+The longitudinal structure of the data, repeated observations collected over time, show that it is not normally distributed and if closer intervals then it may show to be normally distributed.
