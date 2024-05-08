@@ -1,0 +1,48 @@
+Part 1: Logistic Regression
+For this assignment, utilize the ‘diamonds’ dataset in the library “ggplot2.” You will need to install and load the library into your R environment to access the dataset.
+1.	Load the “ggplot2” library into your R environment. Load the “diamonds” dataset into a new object called “ddat” for purposes of working through this assignment. Use the appropriate R functions to check that the data has loaded correctly (The dimensions of the dataset should be 53,940 observations of 10 variables). Use the View function to view the data in your R console and include a screenshot to show that the data loaded appropriately.
+
+library(ggplot2)
+ddat <- diamonds
+head(ddat)
+
+dim(ddat)
+View(ddat)
+
+2.	Create a new variable in the dataset called “luxury” that assigns a value of 1 to any diamonds with a selling price $10,000 or greater, and a 0 otherwise. 
+Use the table function in R to check that the luxury variable has 5,223 observations coded as a 1.
+
+luxury <- as.factor(ifelse(ddat$price<10000,0,1))
+table(luxury)
+
+3.	Fit a logistic regression with the “luxury” variable as the dependent variable and the “carat” variable as the independent variable and save the results in an object called “mod1.” 
+Use the summary function to show the regression output. Is carat size significantly related to the probability that the diamond will sell for $10,000 or more? 
+Explain your interpretation of the regression output and specifically how carat size affects probability of a diamond having a sales price greater than $10,000. 
+(Hint: When fitting your regression model, you’ll need to use the function glm and specify the argument family=binomial in order to produce a logistic regression). 
+
+mod1 <- glm(luxury~carat, family = binomial(link = 'logit'),data = ddat)
+summary(mod1)
+
+Part 2: Smoothing splines
+Smoothing splines can be used to fit a smooth line to data that exhibit nonlinear behavior. Analysts can control the smoothing splines by specifying the number of knots, the degrees of freedom, and other parameters within the spline specification. For this part of the assignment, you will need the “splines” library and will be using the “diamonds” dataset used in Part 1.
+1.	Load the “splines” library into your R environment. 
+
+library(splines)
+
+2.	Run the following line of code in R. Include the output as part of your assignment submission. 
+What is the line of code doing? As part of your answer, be sure to describe what relationship is being plotted. 
+
+g <- ggplot(diamonds, aes(x=carat, y=price)) + geom_point()
+View(g)
+print(g)
+
+The line of code above gives us a scatterplot showing the carat size and price variables. 
+It shows the relationship between carat size and price of diamonds as carat size increases so too does price. 
+
+1.	Using the stat_smooth function, use the plot created in Step 2 to show three different smoothing splines, specifying df=3, df=6, and df=9 in your code. 
+(Hint: you will need three lines of code for this step, one line for each spline. Each line of code will start with g +  to call the object you created in Step 2, and add the smoothing spline to it.). 
+Include each plot as part of your output.
+
+g + stat_smooth(method = 'lm', formula = y ~ bs(x, df = 3))
+g + stat_smooth(method = 'lm', formula = y ~ bs(x, df = 6))
+g + stat_smooth(method = 'lm', formula = y ~ bs(x, df = 9))
