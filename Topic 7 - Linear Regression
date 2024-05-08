@@ -1,0 +1,155 @@
+•	Item 1: A line chart visualizing sales by month for the number one product by Sales Revenue. Include linear regression predictions for the first 6 months of 2014 for items 1-3.
+
+Load data from SQL Server to R Studio
+
+library(odbc)
+library(DBI)
+con <- DBI::dbConnect(odbc::odbc(),
+                      Driver="SQL Server",
+                      Server=".",
+                      Database="AdventureWorks2016",
+                      Trusted_Connection="True")
+
+--#1 Product by Sales Revenue and Prediction
+
+monthly.sales1 <- dbGetQuery(con,
+  "SELECT convert(date, DATEADD(DAY, -1 * DATEPART(DAY, soh.OrderDate) + 1, soh.OrderDate)) as SalesMonth,
+      SUM(sod.LineTotal) as MonthlySales, 
+      'A' as ActOrPred 
+  FROM Sales.SalesOrderDetail as sod
+  JOIN Sales.SalesOrderHeader as soh 
+    ON soh.SalesOrderID = sod.SalesOrderID
+  WHERE sod.ProductID = 782
+  AND Year(soh.OrderDate) = 2013
+  GROUP BY DATEADD(DAY, -1 * DATEPART(DAY, soh.OrderDate) + 1, soh.OrderDate)
+  ORDER BY SalesMonth")
+
+monthly.sales1$SalesMonth <- as.Date(monthly.sales1$SalesMonth)
+
+lm.fit <- lm(MonthlySales~SalesMonth, data = monthly.sales1)
+
+predicted.sales1 <- data.frame(SalesMonth = seq(from=as.Date('2014-01-01'), to=as.Date('2014-06-01'), by="month"),
+                              MonthlySales=0, ActOrPred="P")
+
+predicted.sales1$MonthlySales <- predict(lm.fit, newdata=predicted.sales1)
+
+all.months1 <- rbind(monthly.sales1, predicted.sales1)
+
+plot(all.months1$SalesMonth, all.months1$MonthlySales, type = "b",
+     col = ifelse(all.months$ActOrPred == "A", "blue", "red"),
+     pch = ifelse(all.months$ActOrPred == "A", 17, 18),
+     xlab = "Order Month", ylab = "Sales Revenue")
+
+grid()
+
+abline(lm.fit, col = "black", lty = 5)
+
+legend("bottomright", legend = c("2013 Sales", "Regression Line", "2014 Sales Predictions"),
+       col = c("blue", "black", "red"), lty = 1:2, cex = 0.6)
+
+title(main = "#1 Product by Sales Revenue and Prediction")
+
+•	Item 2: A line chart visualizing sales by month for the number two product by Sales Revenue. Include linear regression predictions for the first 6 months of 2014 for items 1-3.
+
+--#2 Product by Sales Revenue and Prediction
+
+monthly.sales2 <- dbGetQuery(con,
+"SELECT convert(date, DATEADD(DAY, -1 * DATEPART(DAY, soh.OrderDate) + 1, soh.OrderDate)) as SalesMonth,
+      SUM(sod.LineTotal) as MonthlySales, 
+      'A' as ActOrPred  
+FROM Sales.SalesOrderDetail as sod
+JOIN Sales.SalesOrderHeader as soh 
+ON soh.SalesOrderID = sod.SalesOrderID
+WHERE sod.ProductID = 783
+AND Year(soh.OrderDate) = 2013
+GROUP BY DATEADD(DAY, -1 * DATEPART(DAY, soh.OrderDate) + 1, soh.OrderDate)
+ORDER BY SalesMonth")
+
+monthly.sales2$SalesMonth <- as.Date(monthly.sales2$SalesMonth)
+
+lm.fit <- lm(MonthlySales~SalesMonth, data = monthly.sales2)
+
+predicted.sales2 <- data.frame(SalesMonth = seq(from=as.Date('2014-01-01'), to=as.Date('2014-06-01'), by="month"), MonthlySales=0, ActOrPred="P")
+
+predicted.sales2$MonthlySales <- predict(lm.fit, newdata=predicted.sales2)
+
+all.months2 <- rbind(monthly.sales2, predicted.sales2)
+
+plot(all.months2$SalesMonth, all.months2$MonthlySales, type = "b",
+     col = ifelse(all.months$ActOrPred == "A", "blue", "red"),
+     pch = ifelse(all.months$ActOrPred == "A", 17, 18),
+     xlab = "Order Month", ylab = "Sales Revenue")
+
+grid()
+
+abline(lm.fit, col = "black", lty = 5)
+
+legend("bottomright", legend = c("2013 Sales", "Regression Line", "2014 Sales Predictions"),
+       col = c("blue", "black", "red"), lty = 1:2, cex = 0.6)
+
+title(main = "#2 Product by Sales Revenue and Prediction")
+
+•	Item 3: A line chart visualizing sales by month for the number three product by Sales Revenue. Include linear regression predictions for the first 6 months of 2014 for items 1-3.
+
+--#3 Product by Sales Revenue and Prediction
+
+monthly.sales3 <- dbGetQuery(con,
+"SELECT convert(date, DATEADD(DAY, -1 * DATEPART(DAY, soh.OrderDate) + 1, soh.OrderDate)) as SalesMonth,
+      SUM(sod.LineTotal) as MonthlySales, 
+      'A' as ActOrPred 
+FROM Sales.SalesOrderDetail as sod
+JOIN Sales.SalesOrderHeader as soh 
+ON soh.SalesOrderID = sod.SalesOrderID
+WHERE sod.ProductID = 779
+AND Year(soh.OrderDate) = 2013
+GROUP BY DATEADD(DAY, -1 * DATEPART(DAY, soh.OrderDate) + 1, soh.OrderDate)
+ORDER BY SalesMonth")
+
+monthly.sales3$SalesMonth <- as.Date(monthly.sales3$SalesMonth)
+
+lm.fit <- lm(MonthlySales~SalesMonth, data = monthly.sales3)
+
+predicted.sales3 <- data.frame(SalesMonth = seq(from=as.Date('2014-01-01'), to=as.Date('2014-06-01'), by="month"), MonthlySales=0, ActOrPred="P")
+
+predicted.sales3$MonthlySales <- predict(lm.fit, newdata=predicted.sales3)
+
+all.months3 <- rbind(monthly.sales3, predicted.sales3)
+
+plot(all.months3$SalesMonth, all.months3$MonthlySales, type = "b",
+     col = ifelse(all.months$ActOrPred == "A", "blue", "red"),
+     pch = ifelse(all.months$ActOrPred == "A", 17, 18),
+     xlab = "Order Month", ylab = "Sales Revenue")
+
+grid()
+
+abline(lm.fit, col = "black", lty = 5)
+
+legend("bottomright", legend = c("2013 Sales", "Regression Line", "2014 Sales Predictions"),
+       col = c("blue", "black", "red"), lty = 1:2, cex = 0.6)
+
+title(main = "#3 Product by Sales Revenue and Prediction")
+
+CPC #3 Questions
+
+3.	List the linear model equations for each of the three products. Provide an example of how to generate a prediction using these equations by hand.
+
+--#1 Product
+lm(formula = MonthlySales ~ SalesMonth, data = all.months1)
+
+Equation – Sales Revenue Prediction = 182.3 * SalesMonth – 2709765.6
+Using Salesmonth = 16193:
+Sales Revenue = 182.3 * 16193 – 2709765.6 = $242,218.30
+
+--#2 Product
+lm(formula = MonthlySales ~ SalesMonth, data = all.months2)
+
+Equation – Sales Revenue Prediction = 224.3 * SalesMonth – 3398648.5
+Using Salesmonth = 16193:
+Sales Revenue = 224.3 * 16193 – 3398648.5 = $233,441.40
+
+--#3 Product
+lm(formula = MonthlySales ~ SalesMonth, data = all.months3)
+
+Equation – Sales Revenue Prediction = 113 * SalesMonth – 1642156
+Using Salesmonth = 16193:
+Sales Revenue = 113 * 16193 – 1642156 = $187,653
