@@ -1,0 +1,42 @@
+Load data from SQL Server to R Studio
+
+library(odbc)
+library(DBI)
+con <- DBI::dbConnect(odbc::odbc(),
+                      Driver="SQL Server",
+                      Server=".",
+                      Database="AdventureWorks2016",
+                      Trusted_Connection="True")
+
+Identify Top 10 products by both sales revenue and unit volume for orders with an order date in 2013.
+
+-	Top 10 Products by Sales Revenue
+ProductsSalesRevenue <- dbGetQuery(con, "SELECT TOP 10 Product.Name, Str(SUM(sales.SalesOrderDetail.LineTotal), 10, 2) AS Revenue
+FROM sales.SalesOrderDetail
+JOIN Production.Product
+ON Product.ProductID = SalesOrderDetail.ProductID
+JOIN Sales.SalesOrderHeader
+ON SalesOrderHeader.SalesOrderID = SalesOrderDetail.SalesOrderID
+WHERE YEAR(SalesOrderHeader.OrderDate) = 2013
+GROUP BY  Product.Name
+ORDER BY Revenue DESC")
+
+-	Top 10 Products by Unit Volume Orders
+ProductsUnitVolumeOrders <- dbGetQuery(con, "SELECT TOP 10 Product.Name, SUM(sales.SalesOrderDetail.OrderQty) AS UnitVolume
+FROM sales.SalesOrderDetail
+JOIN Production.Product
+ON Product.ProductID = SalesOrderDetail.ProductID
+JOIN Sales.SalesOrderHeader
+ON SalesOrderHeader.SalesOrderID = SalesOrderDetail.SalesOrderID
+WHERE YEAR(SalesOrderHeader.OrderDate) = 2013
+GROUP BY  Product.Name
+ORDER BY UnitVolume DESC")
+
+-	For all orders in 2013, identify relevant summary statistics (max, min, mean, median, etc.).
+All_Orders_2013 <- dbGetQuery(con, "SELECT TotalDue
+FROM Sales.SalesOrderHeader
+WHERE YEAR(SalesOrderHeader.OrderDate) = 2013")
+
+summary(All_Orders_2013)
+sd(All_Orders_2013$TotalDue)
+var(All_Orders_2013$TotalDue)
