@@ -1,0 +1,120 @@
+Item 1: Visual representation (pie and bar charts) of Top 10 products by Unit Volume. 
+
+Load data from SQL Server to R Studio
+library(odbc)
+library(DBI)
+con <- DBI::dbConnect(odbc::odbc(),
+                      Driver="SQL Server",
+                      Server=".",
+                      Database="AdventureWorks2016",
+                      Trusted_Connection="True")
+
+-	Top 10 Products by Unit Volume Orders
+ProductsUnitVolumeOrders <- dbGetQuery(con, "SELECT TOP 10 Product.Name AS Product, SUM(sales.SalesOrderDetail.OrderQty) AS UnitVolume
+FROM sales.SalesOrderDetail
+JOIN Production.Product
+ON Product.ProductID = SalesOrderDetail.ProductID
+JOIN Sales.SalesOrderHeader
+ON SalesOrderHeader.SalesOrderID = SalesOrderDetail.SalesOrderID
+WHERE YEAR(SalesOrderHeader.OrderDate) = 2013
+GROUP BY  Product.Name
+ORDER BY UnitVolume DESC")
+
+-	Pie Chart
+pie(ProductsUnitVolumeOrders$UnitVolume, ProductsUnitVolumeOrders$Name, col = 2:11, main = "Top 10 Products by Unit Volume")
+
+-	Bar Chart 
+ggplot(ProductsUnitVolumeOrders) + geom_col(aes(UnitVolume, Name), fill="blue", width = 0.6)
+
+Item 2: Visual representation (pie and bar charts) of Top 10 products by Sales Revenue.
+
+-	Top 10 Products by Sales Revenue
+ProductsSalesRevenue <- dbGetQuery(con, "SELECT TOP 10 Product.Name AS Product, Str(SUM(sales.SalesOrderDetail.LineTotal), 10, 2) AS Revenue
+FROM sales.SalesOrderDetail
+JOIN Production.Product
+ON Product.ProductID = SalesOrderDetail.ProductID
+JOIN Sales.SalesOrderHeader
+ON SalesOrderHeader.SalesOrderID = SalesOrderDetail.SalesOrderID
+WHERE YEAR(SalesOrderHeader.OrderDate) = 2013
+GROUP BY  Product.Name
+ORDER BY Revenue DESC")
+
+-	Pie Chart
+pie(as.numeric(ProductsSalesRevenue$Revenue), ProductsSalesRevenue$Name, col = 2:11, main = "Top 10 Products by Sales Revenue")
+
+-	Bar Chart
+ggplot(ProductsSalesRevenue) + 
+  geom_col(aes(Name, Revenue), fill="blue", width = 0.6) + 
+  theme(text = element_text(size = 12), axis.text.x = element_text(angle=90, vjust=2))
+
+Item 3: A line chart visualizing sales by month for the number one product by Sales Revenue.
+
+top1 <- dbGetQuery(con, "SELECT FORMAT(SUM(sod.LineTotal), 'C2') as 'Sales Revenue', 
+DATENAME(MONTH, DATEADD(MONTH, MONTH(soh.OrderDate) -1, '1900-01-01')) as 'Order Month' 
+FROM Sales.SalesOrderDetail as sod
+JOIN Production.Product as pp
+on pp.productID = sod.ProductID
+JOIN Sales.SalesOrderHeader as soh 
+on sod.SalesOrderID = soh.SalesOrderID
+WHERE YEAR(soh.OrderDate) = '2013'
+and pp.Name = 'Mountain-200 Black, 38'
+GROUP BY MONTH(soh.OrderDate)
+ORDER BY MONTH(soh.OrderDate)")
+
+-	Change order by month in correct order
+top1$'Order Month' <- factor(top1$`Order Month`, 
+    levels = c("January","February","March","April","May","June","July","August","September","October","November","December"))
+
+-	Line Chart
+ggplot(data = top1, aes(x=top1$'Order Month', y=top1$`Sales Revenue`, group = 1)) +
+  geom_line() +
+  geom_point() + 
+  ggtitle("#1 Product by Sales Revenue")
+
+Item 4: A line chart visualizing sales by month for the number two product by Sales Revenue.
+
+top2 <- dbGetQuery(con, "SELECT FORMAT(SUM(sod.LineTotal), 'C2') as 'Sales Revenue', 
+DATENAME(MONTH, DATEADD(MONTH, MONTH(soh.OrderDate) -1, '1900-01-01')) as 'Order Month' 
+FROM Sales.SalesOrderDetail as sod
+JOIN Production.Product as pp
+on pp.productID = sod.ProductID
+JOIN Sales.SalesOrderHeader as soh 
+on sod.SalesOrderID = soh.SalesOrderID
+WHERE YEAR(soh.OrderDate) = '2013'
+and pp.Name = 'Mountain-200 Black, 42'
+GROUP BY MONTH(soh.OrderDate)
+ORDER BY MONTH(soh.OrderDate)")
+
+-	Change order by month in correct order
+top2$'Order Month' <- factor(top2$`Order Month`, 
+levels = c("January","February","March","April","May","June","July","August","September","October","November","December"))
+
+-	Line Chart
+ggplot(data = top2, aes(x=top2$'Order Month', y=top2$`Sales Revenue`, group = 1)) +
+geom_line() +
+geom_point() + 
+  ggtitle("#2 Product by Sales Revenue")
+
+Item 5: A line chart visualizing sales by month for the number three product by Sales Revenue.
+
+top3 <- dbGetQuery(con, "SELECT FORMAT(SUM(sod.LineTotal), 'C2') as 'Sales Revenue', 
+	DATENAME(MONTH, DATEADD(MONTH, MONTH(soh.OrderDate) -1, '1900-01-01')) as 'Order Month' 
+FROM Sales.SalesOrderDetail as sod
+JOIN Production.Product as pp
+	on pp.productID = sod.ProductID
+JOIN Sales.SalesOrderHeader as soh 
+	on sod.SalesOrderID = soh.SalesOrderID
+WHERE YEAR(soh.OrderDate) = '2013'
+and pp.Name = 'Mountain-200 Silver, 38'
+GROUP BY MONTH(soh.OrderDate)
+ORDER BY MONTH(soh.OrderDate)")
+
+-	Change order by month in correct order
+top3$'Order Month' <- factor(top3$`Order Month`, 
+    levels = c("January","February","March","April","May","June","July","August","September","October","November","December"))
+
+-	Line Chart
+ggplot(data = top3, aes(x=top3$'Order Month', y=top3$`Sales Revenue`, group = 1)) +
+  geom_line() +
+  geom_point() + 
+  ggtitle("#3 Product by Sales Revenue")
